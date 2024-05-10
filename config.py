@@ -11,3 +11,4 @@ test_chunk = 0.15
 
 batch_size = 4
 epochs = 50
+model_checkpoint = "last_chkpt.pth"

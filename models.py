@@ -3,7 +3,7 @@ import torch.nn.functional as F
 import torch.nn as nn
 from torch.optim import Adam
 import torchvision.models as models
-from torchmetrics.regression import R2Score
+from torchmetrics.regression import MeanAbsoluteError
 import lightning as L
 
 
@@ -26,7 +26,7 @@ class CustomResnet(nn.Module):
         self.network.fc = fc_module(num_ftrs, num_classes)
     
     def forward(self, xb):
-        return torch.sigmoid(self.network(xb))
+        return F.sigmoid(self.network(xb))
     
     def freeze(self): # we might try to train only last layers
         for param in self.network.parameters():
@@ -40,7 +40,7 @@ class CustomResnet(nn.Module):
 
 
 class LightningResNet(L.LightningModule):
-    def __init__(self, num_classes=2, loss_fn=nn.MSELoss(), metric=R2Score()):
+    def __init__(self, num_classes=2, loss_fn=nn.CrossEntropyLoss(), metric=MeanAbsoluteError()):
         super().__init__()
         self.model = CustomResnet(num_classes)
         self.loss_fn = loss_fn
@@ -50,14 +50,27 @@ class LightningResNet(L.LightningModule):
         images, targets = batch
         out = self.model(images)
         loss = self.loss_fn(out, targets)
+        self.log("train_loss", loss, prog_bar=True)
         return loss.float()
         
     def validation_step(self, batch):
         images, targets = batch
         out = self.model(images)
         loss = self.loss_fn(out, targets)
-        score = self.metric(out[0], targets[0])
+        score = self.metric(out, targets)
+        self.log("val_loss", loss)
+        self.log("val_score", score, prog_bar=True)
         return {'val_loss': loss.detach().float(), 'val_score': score.detach() }
+
+    def test_step(self, batch):
+        images, targets = batch
+        out = self.model(images)
+        loss = self.loss_fn(out, targets)
+        score = self.metric(out, targets)
+        # self.log("val_loss", loss)
+        self.log("test_score", score, prog_bar=True)
+        return {'val_score': score.detach() }
+
 
     def configure_optimizers(self):
         optimizer = Adam(self.parameters(), lr=1e-3)

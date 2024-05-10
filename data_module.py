@@ -10,11 +10,14 @@ import config
 
 
 train_tfms = transforms.Compose([
+    transforms.Resize((224, 224)),
     transforms.RandomHorizontalFlip(p=0.5),
     transforms.RandomRotation(degrees=(-90, 90)),
     transforms.ToTensor()])
 
-valid_tfms = transforms.Compose([transforms.ToTensor()])
+valid_tfms = transforms.Compose(
+    [transforms.Resize((224, 224)), transforms.ToTensor()]
+)
 
 
 def get_default_device():
