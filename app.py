@@ -93,7 +93,6 @@ def predict():
 
 if __name__ == '__main__':
     torch.set_num_threads(12)
-    print("torch threas", torch.get_num_threads())
     parser = argparse.ArgumentParser(description="Prediction server")
     parser.add_argument(
         "-p", "--port", help="port for server", default=6060)

@@ -40,7 +40,7 @@ class CustomResnet(nn.Module):
 
 
 class LightningResNet(L.LightningModule):
-    def __init__(self, num_classes=2, loss_fn=nn.CrossEntropyLoss(), metric=MeanAbsoluteError()):
+    def __init__(self, num_classes=2, loss_fn=nn.MSELoss(), metric=MeanAbsoluteError()):
         super().__init__()
         self.model = CustomResnet(num_classes)
         self.loss_fn = loss_fn
@@ -67,9 +67,8 @@ class LightningResNet(L.LightningModule):
         out = self.model(images)
         loss = self.loss_fn(out, targets)
         score = self.metric(out, targets)
-        # self.log("val_loss", loss)
         self.log("test_score", score, prog_bar=True)
-        return {'val_score': score.detach() }
+        return {'test_score': score.detach() }
 
 
     def configure_optimizers(self):
