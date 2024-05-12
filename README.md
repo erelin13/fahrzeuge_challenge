@@ -42,7 +42,7 @@ Finally, if you want to build Docker image and run application in container, you
 ```
 Then run container. I show only a localhost mapping, adjust as needed.
 ```
-[sudo] docker run -dp 0.0.0.0:6060:6060 <IMAGE_ID>
+[sudo] docker run --expose 6060 -p 6060:6060 <IMAGE_ID>
 ```
 
 [DE]
@@ -87,5 +87,5 @@ Endlich können Sie auch Docker image erstellen und Anwendung im Container ausf�
 ```
 Danach führen Sie den Container aus, z.B so was
 ```
-[sudo] docker run -dp 0.0.0.0:6060:6060 <IMAGE_ID>
+[sudo] docker run --expose 6060 -p 6060:6060 <IMAGE_ID>
 ```

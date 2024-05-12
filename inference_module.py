@@ -12,12 +12,10 @@ from models import CustomResnet, LightningResNet
 
 
 def predict(model, image_path):
-    img = Image.open(image_path)
+    img = Image.open(image_path).convert('RGB')
     img = valid_tfms(img)
-    print(img.unsqueeze(0).shape)
 
     res = model(img.unsqueeze(0))
-    print(res)
     res = res.detach().cpu().numpy()[0]
     return {
         "perspective_score_hood": res[0],

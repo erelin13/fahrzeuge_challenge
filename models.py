@@ -6,6 +6,8 @@ import torchvision.models as models
 from torchmetrics.regression import MeanAbsoluteError
 import lightning as L
 
+import config
+
 
 def fc_module(in_features, num_classes, dropout=0.4):
     hidden = int(in_features/2)
@@ -21,7 +23,10 @@ def fc_module(in_features, num_classes, dropout=0.4):
 class CustomResnet(nn.Module):
     def __init__(self, num_classes=2):
         super().__init__()
-        self.network = models.resnet50(pretrained=True)
+        if config.prod:
+            self.network = models.resnet50(pretrained=False)
+        else:
+            self.network = models.resnet50(pretrained=True)
         num_ftrs = self.network.fc.in_features
         self.network.fc = fc_module(num_ftrs, num_classes)
     

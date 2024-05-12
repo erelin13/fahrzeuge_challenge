@@ -2,6 +2,7 @@ import os
 import time
 import logging
 import traceback
+import requests
 import json
 import argparse
 import numpy as np
@@ -67,17 +68,18 @@ def predict():
             url = tmp_name
         except:
             json_data = json.loads(request.json)
-            if len(json_data["local_url"]) > 0:
-                url = json_data["local_url"]
-                tmp_name = None
-            elif len(json_data["remote_url"]) > 0:
-                tmp_name = json_data["remote_url"].replace(
-                    ".", "_")
+            try:
+                if len(json_data["local_url"]) > 0:
+                    url = json_data["local_url"]
+                    tmp_name = None
+            except:
+            # elif len(json_data["remote_url"]) > 0:
+                tmp_name = json_data["remote_url"].split("/")[-1]
                 download_file(json_data["remote_url"], tmp_name)
                 url = tmp_name
 
         resp = infer(url)
-        print(resp)
+        # print(resp)
         resp = preds_to_str(resp)
         print(resp)
         if tmp_name is not None:
@@ -85,7 +87,8 @@ def predict():
 
         response["preds"] = resp
         response["status"] = "Success"
-    except:
+    except Exception as e:
+        print(e)
         response["status"] = "Unsuccessful"
     return response
 
@@ -97,4 +100,4 @@ if __name__ == '__main__':
     parser.add_argument(
         "-p", "--port", help="port for server", default=6060)
     args = vars(parser.parse_args())
-    app.run(debug=True, port=args['port'], threaded=True)
+    app.run(debug=True, host="0.0.0.0", port=args['port'], threaded=True)
